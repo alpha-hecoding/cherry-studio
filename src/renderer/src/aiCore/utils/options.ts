@@ -187,6 +187,24 @@ function buildOpenAIProviderOptions(
       ...reasoningParams
     }
   }
+  
+  // OpenAI verbosity parameter for GPT-5 models
+  const { isSupportVerbosityModel, getModelSupportedVerbosity } = require('@renderer/config/models')
+  if (isSupportVerbosityModel(model)) {
+    const state = window.store?.getState()
+    const userVerbosity = state?.settings?.openAI?.verbosity
+    
+    if (userVerbosity && ['low', 'medium', 'high'].includes(userVerbosity)) {
+      const supportedVerbosity = getModelSupportedVerbosity(model)
+      // Use user's verbosity if supported, otherwise use the first supported option
+      const verbosity = supportedVerbosity.includes(userVerbosity) ? userVerbosity : supportedVerbosity[0]
+      
+      providerOptions.text = {
+        verbosity
+      }
+    }
+  }
+  
   return providerOptions
 }
 
